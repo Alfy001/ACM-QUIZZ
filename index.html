@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ice Breaker Puzzle Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #06b6d4 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(30, 58, 138, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+            position: relative;
+        }
+
+        .header .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .header .logo {
+            height: 80px;
+            width: auto;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+            transition: transform 0.3s ease;
+        }
+
+        .header .logo:hover {
+            transform: scale(1.05);
+        }
+
+        .header .org-title {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            letter-spacing: 1px;
+        }
+
+        .header h1 {
+            font-size: 2.8em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            background: linear-gradient(45deg, #ffffff, #e0f2fe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+            font-weight: 500;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 
+                0 20px 40px rgba(30, 58, 138, 0.15),
+                0 10px 20px rgba(59, 130, 246, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            transition: transform 0.3s ease;
+            border: 1px solid rgba(59, 130, 246, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 
+                0 25px 50px rgba(30, 58, 138, 0.2),
+                0 15px 30px rgba(59, 130, 246, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        }
+
+        .game-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .stat-item {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            padding: 15px 20px;
+            border-radius: 12px;
+            text-align: center;
+            min-width: 120px;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .stat-item:hover {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            transform: translateY(-2px);
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #1e40af;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #1e3a8a;
+        }
+
+        .timer {
+            color: #dc2626;
+        }
+
+        .puzzle-area {
+            text-align: center;
+        }
+
+        .level-title {
+            font-size: 1.5em;
+            color: #1e3a8a;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .puzzle-text {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border-left: 4px solid #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+        }
+
+        .student-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .info-item {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid rgba(59, 130, 246, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        .info-item:hover {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(59, 130, 246, 0.1);
+        }
+
+        .info-label {
+            font-weight: bold;
+            color: #1e40af;
+        }
+
+        .puzzle-question {
+            font-size: 1.2em;
+            color: #1e3a8a;
+            margin-top: 15px;
+            font-weight: 600;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        input[type="text"] {
+            padding: 15px 20px;
+            font-size: 1.1em;
+            border: 2px solid rgba(59, 130, 246, 0.3);
+            border-radius: 12px;
+            width: 200px;
+            text-align: center;
+            transition: border-color 0.3s ease;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .btn {
+            padding: 15px 30px;
+            font-size: 1em;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(6, 182, 212, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+        }
+
+        .hint-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-radius: 12px;
+            border-left: 4px solid #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .modal {
+            display: flex;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 
+                0 25px 50px rgba(30, 58, 138, 0.3),
+                0 15px 30px rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.1);
+        }
+
+        .modal h2 {
+            margin-bottom: 20px;
+            color: #1e3a8a;
+            font-weight: 700;
+        }
+
+        .modal input[type="text"] {
+            width: 100%;
+            margin: 20px 0;
+        }
+
+        .leaderboard {
+            margin-top: 20px;
+        }
+
+        .leaderboard h3 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #1e3a8a;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .live-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.8em;
+            color: #22c55e;
+            font-weight: 500;
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: #22c55e;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            border-left: 4px solid #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .leaderboard-item:hover {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            transform: translateX(5px);
+        }
+
+        .leaderboard-item.current-team {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-left-color: #f59e0b;
+            border-color: rgba(245, 158, 11, 0.3);
+        }
+
+        .leaderboard-item.current-team:hover {
+            background: linear-gradient(135deg, #fde68a 0%, #fcd34d 100%);
+        }
+
+        .rank {
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #3b82f6;
+            width: 30px;
+        }
+
+        .team-name {
+            flex: 1;
+            font-weight: 600;
+            color: #1e3a8a;
+        }
+
+        .score-details {
+            text-align: right;
+            font-size: 0.9em;
+            color: #64748b;
+        }
+
+        .final-time {
+            font-weight: bold;
+            color: #dc2626;
+        }
+
+        .team-status {
+            font-size: 0.8em;
+            color: #64748b;
+            font-style: italic;
+        }
+
+        .team-status.playing {
+            color: #22c55e;
+        }
+
+        .team-status.completed {
+            color: #3b82f6;
+        }
+
+        .success-message {
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            color: #166534;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border-left: 4px solid #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .error-message {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            color: #991b1b;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            .game-stats {
+                flex-direction: column;
+            }
+            
+            .input-group {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            input[type="text"] {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo-container">
+                <img src="acmlogo.png" alt="ACM-AJCE Logo" class="logo">
+                <div class="org-title">ACM-AJCE</div>
+            </div>
+            <h1>🧩 Ice Breaker Puzzle Challenge</h1>
+            <p>Solve puzzles about fictional students to unlock the mystery!</p>
+        </div>
+
+        <!-- Team Name Modal -->
+        <div id="teamModal" class="modal">
+            <div class="modal-content">
+                <h2>🎯 Enter Your Team Name</h2>
+                <p>Ready to start your puzzle adventure?</p>
+                <input type="text" id="teamNameInput" placeholder="Enter team name..." maxlength="20">
+                <br>
+                <button class="btn btn-primary" onclick="startGame()">Start Game!</button>
+            </div>
+        </div>
+
+        <!-- Game Completion Modal -->
+        <div id="completionModal" class="modal hidden">
+            <div class="modal-content">
+                <h2>🎉 Congratulations!</h2>
+                <p id="completionMessage"></p>
+                <button class="btn btn-primary" onclick="showLeaderboard()">View Leaderboard</button>
+                <button class="btn btn-secondary" onclick="restartGame()">Play Again</button>
+            </div>
+        </div>
+
+        <!-- Game Area -->
+        <div id="gameArea" class="hidden">
+            <div class="card">
+                <div class="game-stats">
+                    <div class="stat-item">
+                        <div class="stat-label">Team</div>
+                        <div class="stat-value" id="teamName">-</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Level</div>
+                        <div class="stat-value" id="currentLevel">1</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Timer</div>
+                        <div class="stat-value timer" id="timer">00:00</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Hints Used</div>
+                        <div class="stat-value" id="hintsUsed">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Points</div>
+                        <div class="stat-value" id="currentPoints">0</div>
+                    </div>
+                </div>
+
+                <div class="puzzle-area">
+                    <div class="level-title" id="levelTitle">Level 1: The Mystery Student</div>
+                    
+                    <div class="puzzle-text" id="puzzleContent">
+                        <!-- Puzzle content will be inserted here -->
+                    </div>
+
+                    <div id="messageArea"></div>
+
+                    <div class="input-group">
+                        <input type="text" id="answerInput" placeholder="Enter your answer..." onkeypress="if(event.key==='Enter') checkAnswer()">
+                        <button class="btn btn-primary" onclick="checkAnswer()">Submit</button>
+                    </div>
+
+                    <div class="input-group">
+                        <button class="btn btn-secondary" onclick="getHint()" id="hintBtn">Get Hint (+15s penalty)</button>
+                        <button class="btn btn-danger" onclick="restartGame()">Restart Game</button>
+                    </div>
+
+                    <div id="hintArea" class="hidden">
+                        <div class="hint-section">
+                            <h4>💡 Hint:</h4>
+                            <p id="hintText"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leaderboard -->
+        <div id="leaderboardArea" class="card hidden">
+            <div class="leaderboard">
+                <h3>
+                    🏆 Leaderboard
+                    <span class="live-indicator">
+                        <span class="live-dot"></span>
+                        LIVE
+                    </span>
+                </h3>
+                <div id="leaderboardList">
+                    <p>No scores yet. Be the first to complete the challenge!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game data
+        const puzzles = [
+            {
+                level: 1,
+                title: "Level 1: The Mystery Student",
+                student: {
+                    name: "Sarah Johnson",
+                    yearOfBirth: 1995,
+                    hobby: "Photography",
+                    favoriteColor: "Blue"
+                },
+                question: "What is the secret code?",
+                rule: "Code = First 3 letters of name + Last 2 digits of birth year",
+                answer: "sar95",
+                hints: [
+                    "The code combines letters from the name with numbers from the birth year.",
+                    "Take the first 3 letters of 'Sarah' and the last 2 digits of '1995'.",
+                    "The answer is: sar95"
+                ],
+                points: 10
+            },
+            {
+                level: 2,
+                title: "Level 2: The Creative Mind",
+                student: {
+                    name: "Mike Chen",
+                    yearOfBirth: 1998,
+                    hobby: "Guitar",
+                    favoriteColor: "Green"
+                },
+                question: "What is the secret code?",
+                rule: "Code = Hobby + First 2 letters of name",
+                answer: "guitarmi",
+                hints: [
+                    "Combine the student's hobby with letters from their name.",
+                    "Put 'Guitar' together with the first 2 letters of 'Mike'.",
+                    "The answer is: guitarmi"
+                ],
+                points: 10
+            },
+            {
+                level: 3,
+                title: "Level 3: The Color Enthusiast",
+                student: {
+                    name: "Emma Wilson",
+                    yearOfBirth: 2001,
+                    hobby: "Dancing",
+                    favoriteColor: "Purple"
+                },
+                question: "What is the secret code?",
+                rule: "Code = Favorite color + Number of letters in name",
+                answer: "purple10",
+                hints: [
+                    "Count the letters in the student's full name and combine with their favorite color.",
+                    "'Emma Wilson' has 10 letters total (excluding the space).",
+                    "The answer is: purple10"
+                ],
+                points: 10
+            },
+            {
+                level: 4,
+                title: "Level 4: The Final Challenge",
+                student: {
+                    name: "Alex Rivera",
+                    yearOfBirth: 1997,
+                    hobby: "Reading",
+                    favoriteColor: "Red"
+                },
+                question: "What is the secret code?",
+                rule: "Code = Last 2 letters of hobby + Birth year + First letter of color",
+                answer: "ng1997r",
+                hints: [
+                    "This combines the end of the hobby, the full birth year, and the start of the color.",
+                    "Take 'ng' from 'Reading', '1997', and 'r' from 'Red'.",
+                    "The answer is: ng1997r"
+                ],
+                points: 10
+            }
+        ];
+
+        // Game state
+        let gameState = {
+            currentLevel: 0,
+            teamName: '',
+            startTime: 0,
+            hintsUsed: 0,
+            currentHintIndex: 0,
+            gameCompleted: false,
+            points: 0
+        };
+
+        let gameTimer;
+        let leaderboardTimer;
+
+        // Initialize game
+        document.addEventListener('DOMContentLoaded', function() {
+            loadLeaderboard();
+            startLeaderboardUpdates();
+        });
+
+        function startGame() {
+            // Check if game is active (controlled by admin)
+            const gameActive = localStorage.getItem('gameActive');
+            if (gameActive !== 'true') {
+                alert('🚫 The game is currently not active. Please wait for the admin to start the game.');
+                return;
+            }
+
+            const teamNameInput = document.getElementById('teamNameInput');
+            const teamName = teamNameInput.value.trim();
+            
+            if (!teamName) {
+                alert('Please enter a team name to start the game!');
+                return;
+            }
+
+            gameState.teamName = teamName;
+            gameState.currentLevel = 0;
+            gameState.startTime = Date.now();
+            gameState.hintsUsed = 0;
+            gameState.currentHintIndex = 0;
+            gameState.gameCompleted = false;
+            gameState.points = 0;
+
+            document.getElementById('teamModal').classList.add('hidden');
+            document.getElementById('gameArea').classList.remove('hidden');
+            document.getElementById('leaderboardArea').classList.remove('hidden');
+            document.getElementById('teamName').textContent = teamName;
+            document.getElementById('currentPoints').textContent = '0';
+
+            startTimer();
+            loadPuzzle();
+            updateLiveLeaderboard();
+        }
+
+        function startTimer() {
+            gameTimer = setInterval(updateTimer, 1000);
+        }
+
+        function updateTimer() {
+            if (gameState.gameCompleted) return;
+            
+            const elapsed = Math.floor((Date.now() - gameState.startTime) / 1000);
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = elapsed % 60;
+            document.getElementById('timer').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function loadPuzzle() {
+            const puzzle = puzzles[gameState.currentLevel];
+            const student = puzzle.student;
+
+            document.getElementById('currentLevel').textContent = gameState.currentLevel + 1;
+            document.getElementById('levelTitle').textContent = puzzle.title;
+            document.getElementById('hintsUsed').textContent = gameState.hintsUsed;
+            document.getElementById('currentPoints').textContent = gameState.points;
+
+            const puzzleContent = `
+                <div class="student-info">
+                    <div class="info-item">
+                        <div class="info-label">Name:</div>
+                        <div>${student.name}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Year of Birth:</div>
+                        <div>${student.yearOfBirth}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Hobby:</div>
+                        <div>${student.hobby}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Favorite Color:</div>
+                        <div>${student.favoriteColor}</div>
+                    </div>
+                </div>
+                <div class="puzzle-question">
+                    <strong>${puzzle.rule}</strong><br>
+                    ${puzzle.question}
+                </div>
+            `;
+
+            document.getElementById('puzzleContent').innerHTML = puzzleContent;
+            document.getElementById('answerInput').value = '';
+            document.getElementById('messageArea').innerHTML = '';
+            document.getElementById('hintArea').classList.add('hidden');
+            document.getElementById('hintBtn').disabled = false;
+            
+            gameState.currentHintIndex = 0;
+        }
+
+        function checkAnswer() {
+            const userAnswer = document.getElementById('answerInput').value.trim().toLowerCase();
+            const correctAnswer = puzzles[gameState.currentLevel].answer.toLowerCase();
+
+            if (userAnswer === correctAnswer) {
+                showMessage('🎉 Correct! Well done!', 'success');
+                
+                // Add points for correct answer
+                const puzzle = puzzles[gameState.currentLevel];
+                gameState.points += puzzle.points;
+                document.getElementById('currentPoints').textContent = gameState.points;
+                
+                // Update live leaderboard immediately
+                updateLiveLeaderboard();
+                
+                setTimeout(() => {
+                    gameState.currentLevel++;
+                    if (gameState.currentLevel >= puzzles.length) {
+                        completeGame();
+                    } else {
+                        loadPuzzle();
+                    }
+                }, 1500);
+            } else {
+                showMessage('❌ Not quite right. Try again!', 'error');
+            }
+        }
+
+        function getHint() {
+            const puzzle = puzzles[gameState.currentLevel];
+            
+            if (gameState.currentHintIndex >= puzzle.hints.length) {
+                showMessage('No more hints available for this puzzle!', 'error');
+                return;
+            }
+
+            gameState.hintsUsed++;
+            document.getElementById('hintsUsed').textContent = gameState.hintsUsed;
+            
+            const hintText = puzzle.hints[gameState.currentHintIndex];
+            document.getElementById('hintText').textContent = hintText;
+            document.getElementById('hintArea').classList.remove('hidden');
+            
+            gameState.currentHintIndex++;
+            
+            if (gameState.currentHintIndex >= puzzle.hints.length) {
+                document.getElementById('hintBtn').disabled = true;
+                document.getElementById('hintBtn').textContent = 'No more hints';
+            }
+        }
+
+        function showMessage(message, type) {
+            const messageArea = document.getElementById('messageArea');
+            messageArea.innerHTML = `<div class="${type}-message">${message}</div>`;
+            setTimeout(() => {
+                messageArea.innerHTML = '';
+            }, 3000);
+        }
+
+        function completeGame() {
+            gameState.gameCompleted = true;
+            clearInterval(gameTimer);
+
+            const actualTime = Math.floor((Date.now() - gameState.startTime) / 1000);
+            const penalty = gameState.hintsUsed * 15;
+            const finalTime = actualTime + penalty;
+
+            const score = {
+                teamName: gameState.teamName,
+                actualTime: actualTime,
+                hintsUsed: gameState.hintsUsed,
+                penalty: penalty,
+                finalTime: finalTime,
+                points: gameState.points,
+                timestamp: Date.now(),
+                completed: true,
+                currentLevel: gameState.currentLevel
+            };
+
+            saveScore(score);
+            updateLiveLeaderboard();
+
+            const minutes = Math.floor(finalTime / 60);
+            const seconds = finalTime % 60;
+            const timeString = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+            document.getElementById('completionMessage').innerHTML = `
+                <strong>Team: ${gameState.teamName}</strong><br>
+                Points Earned: ${gameState.points}<br>
+                Actual Time: ${Math.floor(actualTime / 60)}:${(actualTime % 60).toString().padStart(2, '0')}<br>
+                Hints Used: ${gameState.hintsUsed} (${penalty}s penalty)<br>
+                <strong>Final Time: ${timeString}</strong>
+            `;
+
+            document.getElementById('completionModal').classList.remove('hidden');
+        }
+
+        function saveScore(score) {
+            let scores = JSON.parse(localStorage.getItem('iceBreakerScores') || '[]');
+            scores.push(score);
+            
+            // Sort by points (descending), then by finalTime (ascending) for tiebreaker
+            scores.sort((a, b) => {
+                if (b.points !== a.points) {
+                    return b.points - a.points; // Higher points first
+                }
+                return a.finalTime - b.finalTime; // Lower time first for same points
+            });
+            
+            scores = scores.slice(0, 10); // Keep top 10
+            localStorage.setItem('iceBreakerScores', JSON.stringify(scores));
+        }
+
+        function updateLiveLeaderboard() {
+            // Update current team's progress in live leaderboard
+            const currentTeamData = {
+                teamName: gameState.teamName,
+                points: gameState.points,
+                currentLevel: gameState.currentLevel + 1,
+                completed: gameState.gameCompleted,
+                actualTime: gameState.gameCompleted ? Math.floor((Date.now() - gameState.startTime) / 1000) : null,
+                hintsUsed: gameState.hintsUsed,
+                timestamp: Date.now()
+            };
+
+            // Store live progress
+            let liveData = JSON.parse(localStorage.getItem('iceBreakerLive') || '{}');
+            liveData[gameState.teamName] = currentTeamData;
+            localStorage.setItem('iceBreakerLive', JSON.stringify(liveData));
+
+            // Refresh leaderboard display
+            loadLeaderboard();
+        }
+
+        function startLeaderboardUpdates() {
+            // Update leaderboard every 2 seconds to show live progress
+            leaderboardTimer = setInterval(() => {
+                if (!gameState.gameCompleted) {
+                    loadLeaderboard();
+                }
+            }, 2000);
+        }
+
+        function loadLeaderboard() {
+            const completedScores = JSON.parse(localStorage.getItem('iceBreakerScores') || '[]');
+            const liveData = JSON.parse(localStorage.getItem('iceBreakerLive') || '{}');
+            const leaderboardList = document.getElementById('leaderboardList');
+
+            // Combine completed scores with live data
+            const allTeams = new Map();
+            
+            // Add completed scores
+            completedScores.forEach(score => {
+                allTeams.set(score.teamName, {
+                    ...score,
+                    status: 'completed',
+                    displayTime: score.finalTime
+                });
+            });
+            
+            // Add/update with live data
+            Object.values(liveData).forEach(team => {
+                if (!team.completed) {
+                    allTeams.set(team.teamName, {
+                        ...team,
+                        status: 'playing',
+                        displayTime: team.actualTime || 0
+                    });
+                }
+            });
+            
+            const sortedTeams = Array.from(allTeams.values()).sort((a, b) => {
+                // First sort by completion status (completed teams first)
+                if (a.completed !== b.completed) {
+                    return b.completed ? 1 : -1;
+                }
+                
+                // Then by points (descending)
+                if (b.points !== a.points) {
+                    return b.points - a.points;
+                }
+                
+                // Then by time (ascending) for completed teams, or by level for playing teams
+                if (a.completed && b.completed) {
+                    return a.finalTime - b.finalTime;
+                } else {
+                    return (b.currentLevel || 0) - (a.currentLevel || 0);
+                }
+            });
+
+            if (sortedTeams.length === 0) {
+                leaderboardList.innerHTML = '<p>No scores yet. Be the first to complete the challenge!</p>';
+                return;
+            }
+
+            let html = '';
+            sortedTeams.forEach((team, index) => {
+                const isCurrentTeam = team.teamName === gameState.teamName;
+                const minutes = Math.floor((team.displayTime || 0) / 60);
+                const seconds = (team.displayTime || 0) % 60;
+                const timeString = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
+                let statusText = '';
+                let statusClass = '';
+                if (team.completed) {
+                    statusText = `Completed in ${timeString}`;
+                    statusClass = 'completed';
+                } else {
+                    statusText = `Playing - Level ${team.currentLevel || 1}`;
+                    statusClass = 'playing';
+                }
+                
+                html += `
+                    <div class="leaderboard-item ${isCurrentTeam ? 'current-team' : ''}">
+                        <div class="rank">#${index + 1}</div>
+                        <div class="team-name">
+                            ${team.teamName}
+                            ${isCurrentTeam ? ' (You)' : ''}
+                        </div>
+                        <div class="score-details">
+                            <div><strong>${team.points || 0} points</strong></div>
+                            <div class="team-status ${statusClass}">${statusText}</div>
+                            ${team.hintsUsed ? `<div>Hints: ${team.hintsUsed}</div>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+
+            leaderboardList.innerHTML = html;
+        }
+
+        function showLeaderboard() {
+            document.getElementById('completionModal').classList.add('hidden');
+            loadLeaderboard();
+        }
+
+        function restartGame() {
+            clearInterval(gameTimer);
+            clearInterval(leaderboardTimer);
+            
+            // Remove current team from live data
+            if (gameState.teamName) {
+                let liveData = JSON.parse(localStorage.getItem('iceBreakerLive') || '{}');
+                delete liveData[gameState.teamName];
+                localStorage.setItem('iceBreakerLive', JSON.stringify(liveData));
+            }
+            
+            gameState = {
+                currentLevel: 0,
+                teamName: '',
+                startTime: 0,
+                hintsUsed: 0,
+                currentHintIndex: 0,
+                gameCompleted: false,
+                points: 0
+            };
+
+            document.getElementById('teamModal').classList.remove('hidden');
+            document.getElementById('gameArea').classList.add('hidden');
+            document.getElementById('completionModal').classList.add('hidden');
+            document.getElementById('teamNameInput').value = '';
+            document.getElementById('timer').textContent = '00:00';
+            document.getElementById('currentPoints').textContent = '0';
+            
+            // Restart leaderboard updates
+            startLeaderboardUpdates();
+        }
+
+        // Enable Enter key for team name input
+        document.getElementById('teamNameInput').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                startGame();
+            }
+        });
+        
+        // Clean up intervals when page is closed
+        window.addEventListener('beforeunload', function() {
+            clearInterval(gameTimer);
+            clearInterval(leaderboardTimer);
+            
+            // Remove current team from live data when leaving
+            if (gameState.teamName && !gameState.gameCompleted) {
+                let liveData = JSON.parse(localStorage.getItem('iceBreakerLive') || '{}');
+                delete liveData[gameState.teamName];
+                localStorage.setItem('iceBreakerLive', JSON.stringify(liveData));
+            }
+        });
+    </script>
+</body>
+</html>
